@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"/>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+
+        body{
+            font-size: 14px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .login-wrapper{
+            width: 400px;
+            height: 600px;
+            padding: 40px;
+            margin : 150px auto 0px auto;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 5px 0px black;
+            border-radius: 15px;
+        }
+
+        .login-wrapper > h2{
+            font-size: 24px;
+            color: #6A24FE;
+            margin-bottom: 20px;
+        }
+
+        #login-form > input{
+            width: 100%;
+            height: 48px;
+            padding: 0 10px;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 2px 0px black;
+            margin-bottom: 13px;
+            border-radius: 6px;
+            background-color: #F8F8F8;
+        }
+
+        #login-form > select{
+            width: 100%;
+            height: 48px;
+            padding: 0 10px;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 2px 0px black;
+            margin-bottom: 13px;
+            border-radius: 6px;
+            background-color: #F8F8F8;
+        }
+
+        #login-form > input::placeholder{
+            color: #D2D2D2;
+        }
+
+        #login-form > input[type=button]{
+            color: #fff;
+            font-size: 16px;
+            background-color: #6A24FE;
+            margin-top: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <h2>SignUp</h2>
+        <form method="post" action="서버의url" id="login-form">
+            <input type="text" id="userName" name="userName" placeholder="아이디">
+            <input type="password" id="userPassword" name="userPassword" placeholder="비밀번호">
+            <input type="password" id="userPasswordConfirm" name="userPasswordConfirm" placeholder="비밀번호 확인">
+            <input type="text" id="userBirth" name="userBirth" placeholder="생년월일 ex) 961231">
+            <input type="text" id="userPhoneNum" name="userPhoneNum" placeholder="전화번호 ex) 01012345678">
+            <select type="text" id="userRegion" name="userRegion">
+                <option value="">지역</option>
+                <option value="서울">서울</option>
+                <option value="경기도">경기도</option>
+                <option value="강원도">강원도</option>
+                <option value="충청북도">충청북도</option>
+                <option value="충청남도">충청남도</option>
+                <option value="대전">대전</option>
+                <option value="전라북도">전라남도</option>
+                <option value="전라남도">전라북도</option>
+                <option value="광주">광주</option>
+                <option value="경상북도">경상북도</option>
+                <option value="대구">대구</option>
+                <option value="경상남도">경상남도</option>
+                <option value="울산">울산</option>
+                <option value="부산">부산</option>
+            </select>
+            <input type="text" id="userAddress" name="userAddress" placeholder="상세주소">
+            <input type="button" id="signUp" value="가입하기">
+        </form>
+    </div>
+</body>
+
+<script type="text/javaScript">
+    $('#signUp').click(function(){
+        //아이디 유효성 검사
+        if($('#userName').val() == ""){
+            alert("아이디를 입력하세요");
+            $('#userName').focus();
+            return false;
+        }
+
+        //비밀번호 유효성 검사
+        if($('#userPassword').val() == ""){
+            alert("비밀번호를 입력하세요");
+            $('#userPassword').focus();
+            return false;
+        }
+        
+        //비밀번호 확인 유효성 검사
+        if($('#userPasswordConfirm').val() == ""){
+            alert("비밀번호 확인을 입력하세요");
+            $('#userPasswordConfirm').focus();
+            return false;
+        }
+
+        //생년월일 유효성 검사
+        if($('#userBirth').val() == ""){
+            alert("생년월일을 입력하세요");
+            $('#userBirth').focus();
+            return false;
+        }
+
+        //전화번호 유효성 검사
+        if($('#userPhoneNum').val() == ""){
+            alert("전화번호를 입력하세요");
+            $('#userPhoneNum').focus();
+            return false;
+        }
+
+        //비밀번호 일치 확인
+        if($('input[name=userPassword]').val() != $('input[name=userPasswordConfirm]').val()){
+            alert("비밀번호가 다릅니다. 다시 입력해주세요");
+            $('input[name=userPasswordConfirm]').focus();
+            return false;
+        }
+
+        //생년월일 형식 유효성 검사
+        
+        //전화번호 형식 유효성 검사
+    })
+</script>
+
+</html>
