@@ -1,0 +1,28 @@
+.container-fluid {
+    margin: 0 50px 0 50px;
+}
+
+.form-control{
+    width: 400px;
+}
+
+.navbar-brand {
+    font-family: "Bagel Fat One", system-ui;
+    /* font-weight: 400; */
+    font-style: bold;
+    color: #6A24FE;
+    font-size: 40px;
+}
+
+#search, #searchBtn, #sign-in {
+    border-color: #6A24FE;
+    color: #6A24FE;
+}
+
+#search::placeholder {
+    color: #6A24FE; 
+}
+
+#sign-up {
+    color: white;
+}
