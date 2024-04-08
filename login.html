@@ -61,9 +61,9 @@
 <body>
     <div class="login-wrapper">
         <h2>Login</h2>
-        <form method="post" action="서버의url" id="login-form">
-            <input type="text" name="userName" placeholder="아이디">
-            <input type="password" name="userPassword" placeholder="비밀번호">
+        <form method="post" id="login-form">
+            <input type="text" id="id" name="id" placeholder="아이디">
+            <input type="password" id="userPassword" name="userPassword" placeholder="비밀번호">
             <input type="button" id="login" value="로그인">
             <input type="button" id="signUp" value="회원가입">
         </form>
@@ -71,6 +71,55 @@
 </body>
 
 <script type="module">
+
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyApcUVgvBWTEqlKCINOFnRkttZbJ2EjMXY",
+        authDomain: "spartaminiproject.firebaseapp.com",
+        databaseURL: "https://spartaminiproject-default-rtdb.firebaseio.com",
+        projectId: "spartaminiproject",
+        storageBucket: "spartaminiproject.appspot.com",
+        messagingSenderId: "973891752316",
+        appId: "1:973891752316:web:e03f9c7bc4bc11ab9954f9",
+        measurementId: "G-0WF3E033D3"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase();
+
+    $('#login').click(function(){
+        let id = $('#id').val();
+        let password = $('#userPassword').val();
+
+        const userRef = ref(db, 'users/' + id)
+        get(userRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                if(snapshot.val().userPassword == password){
+                    alert('로그인되었습니다.');
+                    sessionStorage.setItem('id', id);
+                    sessionStorage.setItem('password', password);
+                    sessionStorage.setItem('name', snapshot.val().userName);
+                }else{
+                    alert('비밀번호가 다릅니다. 다시 시도해주세요.');
+                    $('#userPassword').focus()
+                }
+            } else {
+                alert('존재하지 않는 아이디 입니다. 다시 시도해주세요.');
+                $('#id').focus()
+            }
+        }).catch((error) => {
+            console.error(error)
+        })
+    })
+
     $('#signUp').click(function() {
         location.href = 'C:/sparta/miniProject/signUp.html';
     })

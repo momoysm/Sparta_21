@@ -73,7 +73,7 @@
     <div class="login-wrapper">
         <h2>SignUp</h2>
         <form id="login-form">
-            <input type="hidden" id="check" value="N">
+            <input type="hidden" id="check" value="">
             <input type="text" id="id" name="id" placeholder="아이디" style="width:60%;">
             <input type="button" id="duplicationCheck" value="중복확인" style="margin-left:25px; width: 30%;">
             <input type="password" id="userPassword" name="userPassword" placeholder="비밀번호">
@@ -91,7 +91,7 @@
 
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js";
     // TODO: Add SDKs for Firebase products that you want to use
     // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -113,27 +113,23 @@
     const db = getDatabase();
 
     //중복 검사
-    // $('#duplicationCheck').click(async function(){
+    $('#duplicationCheck').click(async function(){
 
-    //     let id = $('#id').val();
+        let id = $('#id').val();
 
-    //     const userRef = ref(db, 'users/' + id);
-    //     try{
-    //         const snapshot = await get(child(userRef, id));
-    //         if (snapshot.exists()) {
-    //             // 중복되는 아이디일 경우
-    //             alert("중복되는 아이디가 있습니다. 변경해주세요.");
-    //         }else {
-    //             // 중복되지 않는 경우
-    //             alert("사용 가능한 아이디입니다.");
-    //             // 중복 확인이 완료되었음을 표시
-    //             $('#check').val('Y');
-    //         }
-    //     }catch (error) {
-    //         console.error("문서 존재 확인 오류: ", error);
-    //         alert("오류가 발생했습니다.");
-    //     }
-    // })
+        const userRef = ref(db, 'users/' + id)
+        get(userRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                alert('중복된 아이디가 있습니다. 다른 아이디를 사용해주세요.');
+                $('#check').val('N');
+            } else {
+                alert('사용 가능한 아이디입니다.');
+                $('#check').val('Y');
+            }
+        }).catch((error) => {
+            console.error(error)
+        })
+    })
 
     $('#signUp').click(function(){
 
@@ -155,6 +151,9 @@
         }
 
         if($('#check').val() == 'N'){
+            alert("사용할 수 없는 아이디입니다.");
+            return false;
+        }else if($('#check').val() == ''){
             alert("아이디 중복검사를 해주세요.");
             return false;
         }
@@ -236,9 +235,8 @@
     })
 
     function insertData(id, userPassword, userName, userBirth, userPhoneNum, userAddress) {
-        const usersRef = ref(db, 'users');
+        const usersRef = ref(db, 'users/' + id);
         set(usersRef, {
-            "id": id,
             "userPassword": userPassword,
             "userName": userName,
             "userBirth": userBirth,
@@ -246,6 +244,7 @@
             "userAddress": userAddress
         }).then(() => {
             alert("가입이 완료되었습니다.");
+            location.href = 'C:/sparta/miniProject/login.html';
         }).catch((error) => {
             console.error("Error writing document: ", error);
         });
