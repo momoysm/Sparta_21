@@ -175,7 +175,7 @@
                 if ((searchFilter === 'id' && id.includes(searchText)) ||
                     (searchFilter === 'accommodation' && hotel.includes(searchText)) ||
                     (searchFilter === 'location' && userRegion.includes(searchText)) ||
-                    (searchFilter === 'rating' && row['usergrade'] == searchText) || // 평점은 정확한 값으로 비교
+                    (searchFilter === 'rating' && row['userrate'] == searchText) || // 평점은 정확한 값으로 비교
                     (searchFilter === 'review' && review.includes(searchText))) { // 리뷰내용 추가
                     searchResults.push(row);
                 }
@@ -197,7 +197,7 @@
                 let id = row['userid'];
                 let hotel = row['userhotelname'];
                 let userRegion = row['userRigion'];
-                let grade = row['usergrade'];
+                let grade = row['userrate'];
                 let review = row['userreview'];
                 
                 let ratingText = `(${grade})`;
@@ -232,8 +232,9 @@
                 let id = row['userid'];
                 let hotel = row['userhotelname'];
                 let userRegion = row['userRigion'];
-                let grade = row['usergrade'];
+                let grade = row['userrate'];
                 let review = row['userreview'];
+                let ratingText = `(${grade})`;
 
                 let temp_html = `
                 <div class="grid-item">
@@ -245,7 +246,7 @@
                         <p><strong>평점:</strong>
                             <span class="rating">
                                 ${"★".repeat(Math.floor(grade))}${"☆".repeat(5 - Math.floor(grade))}
-                                <span class="rating-value">${grade}</span>
+                                <span class="rating-value">${ratingText}</span>
                             </span>
                         </p>
                         <p><strong>리뷰내용:</strong> ${review}</p>
