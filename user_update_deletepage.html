@@ -140,6 +140,7 @@
                             // 그리드에 추가할 요소 생성
                             const gridItem = document.createElement('div');
                             gridItem.classList.add('grid-item');
+                            gridItem.setAttribute('data-key', key); // 각 항목의 키 값 설정
 
                             gridItem.innerHTML = `
                         <div class="grid-item-content">
@@ -215,7 +216,6 @@
                     });
             }
         });
-// 
     </script>
 </head>
 
@@ -250,5 +250,4 @@
     </nav>
     <div class="grid-container"></div>
 </body>
-
 </html>
