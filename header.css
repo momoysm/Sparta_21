@@ -14,7 +14,7 @@
     font-size: 40px;
 }
 
-#search, #searchBtn, #sign-in {
+#search, #searchBtn, #sign-in, #content, #contentBtn{
     border-color: #6A24FE;
     color: #6A24FE;
 }
@@ -26,4 +26,8 @@
 #sign-up {
     background-color: #6A24FE;
     color: white;
+}
+
+#contentBtn {
+    margin-left: 10px; /* 위쪽 여백 추가 */
 }
