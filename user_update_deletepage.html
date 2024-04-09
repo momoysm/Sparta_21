@@ -35,10 +35,8 @@
         .grid-item {
             border: 1px solid #ccc;
             padding: 10px;
-            display: flex;
-            /* 아이템 내부 요소들을 수평 정렬하기 위해 추가 */
-            align-items: center;
-            /* 아이템 내부 요소들을 수직 가운데 정렬하기 위해 추가 */
+            position: relative;
+            /* 상대 위치 설정 */
         }
 
         .grid-item img {
@@ -47,27 +45,18 @@
             height: 80%;
             border-radius: 5px;
             margin-right: 10px;
-            /* 사진과 정보 사이 간격 조정 */
+            /* 사진과 텍스트 사이 간격 조정 */
         }
 
         .grid-item-content {
             flex-grow: 1;
             /* 내용이 넘치더라도 여백이 없도록 설정 */
-        }
-
-        /* 평점 스타일 */
-        .rating {
-            font-size: 16px;
-            /* 평점 별 크기 조정 */
-            color: #f39c12;
-            /* 별 색상 */
             display: flex;
+            /* 텍스트 박스를 가로 배열로 나타내기 위해 추가 */
+            justify-content: space-between;
+            /* 텍스트 박스를 가로로 고르게 배열하기 위해 추가 */
             align-items: center;
-        }
-
-        .rating-value {
-            margin-left: 5px;
-            /* 숫자와의 간격 조정 */
+            /* 수직 가운데 정렬 */
         }
 
         .search-filter {
@@ -77,173 +66,157 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        /* 리뷰 추가 버튼 스타일 */
+
         .contentBtn {
             margin-left: 10px;
         }
 
-        /* 삭제 버튼 스타일 */
-        .delete-button {
-            padding: 5px 10px;
-            background-color: #dc3545;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            /* 위쪽 여백 추가 */
+        .actionBtn {
+            text-align: center;
+            position: absolute;
+            /* 절대 위치 설정 */
+            bottom: 10px;
+            /* 하단 여백 */
+            left: 50%;
+            /* 가운데 정렬 */
+            transform: translateX(-50%);
+            /* 수평 정렬 */
         }
-
-        /* 수정 및  */
-        .modify-button {
-            padding: 5px 10px;
-            background-color: #3d35dc;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-
     </style>
-    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
     <script type="module">
-        // Firebase SDK 라이브러리 가져오기
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js";
+        import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js";
 
-
-        // Firebase 구성 정보 설정
+        // Your web app's Firebase configuration
         const firebaseConfig = {
-            // 본인 설정 내용 채우기 
-            apiKey: "AIzaSyAMI7WlpKtivs-ZOEHimDcsiy2SXeTC_9g",
-            authDomain: "sparta-miniproject-ea935.firebaseapp.com",
-            projectId: "sparta-miniproject-ea935",
-            storageBucket: "sparta-miniproject-ea935.appspot.com",
-            messagingSenderId: "179160568879",
-            appId: "1:179160568879:web:929d38c3e0b3dc7499e2da"
-
+            apiKey: "AIzaSyCFiFbDDC2WrZdNAIXVVoWCt61jHewNljM",
+            authDomain: "spartaminiproject-c41e6.firebaseapp.com",
+            databaseURL: "https://spartaminiproject-c41e6-default-rtdb.firebaseio.com",
+            projectId: "spartaminiproject-c41e6",
+            storageBucket: "spartaminiproject-c41e6.appspot.com",
+            messagingSenderId: "885051848770",
+            appId: "1:885051848770:web:47a57865fbcfc2353c15db",
+            measurementId: "G-Q2G8924XG6"
         };
 
-        // Firebase 인스턴스 초기화
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getDatabase();
 
-        // 검색 버튼 클릭 이벤트 핸들러 추가
-        $('.searchBtn').on('click', async function () {
-            // 검색 필터 및 검색어 가져오기
-            let searchFilter = $('.search-filter').val();
-            let searchText = $('.search-input').val().trim().toLowerCase();
+        // 데이터 불러와서 화면에 표시하는 함수
+        function displayUserData() {
+            const gridContainer = document.querySelector('.grid-container');
+            const searchFilter = document.querySelector('.search-filter');
+            const searchText = document.querySelector('.search-input').value.toLowerCase();
 
-            // Firebase에서 리뷰 데이터 가져오기
-            let docs = await getDocs(collection(db, "User_review"));
+            // 'user_review' 데이터베이스 참조
+            const reviewRef = ref(db, 'user_review');
 
-            // 검색 결과를 담을 배열
-            let searchResults = [];
+            // 데이터 가져오기
+            get(reviewRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    gridContainer.innerHTML = ''; // 기존 내용 초기화
+                    const reviews = snapshot.val();
 
-            // 각 리뷰 데이터에 대해 처리
-            docs.forEach((doc) => {
-                let row = doc.data();
+                    // 각 리뷰에 대해 반복
+                    Object.keys(reviews).forEach((key) => {
+                        const review = reviews[key];
 
-                let id = row['userid'].toLowerCase();
-                let hotel = row['userhotelname'].toLowerCase();
-                let userRegion = row['userRigion'].toLowerCase();
-                let review = row['userreview'].toLowerCase();
+                        // 검색 필터에 따른 검색 수행
+                        if (
+                            (searchFilter.value === 'id' && review.userid.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'accommodation' && review.userhotelname.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'location' && review.userRigion.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'rating' && review.userrate.toString().includes(searchText)) ||
+                            (searchFilter.value === 'review' && review.userreview.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'all' && (
+                                review.userid.toLowerCase().includes(searchText) ||
+                                review.userhotelname.toLowerCase().includes(searchText) ||
+                                review.userRigion.toLowerCase().includes(searchText) ||
+                                review.userrate.toString().includes(searchText) ||
+                                review.userreview.toLowerCase().includes(searchText)
+                            ))
+                        ) {
+                            // 그리드에 추가할 요소 생성
+                            const gridItem = document.createElement('div');
+                            gridItem.classList.add('grid-item');
 
-                // 검색 필터에 따라 검색어가 해당 필드에 포함되는지 확인
-                if ((searchFilter === 'id' && id.includes(searchText)) ||
-                    (searchFilter === 'accommodation' && hotel.includes(searchText)) ||
-                    (searchFilter === 'location' && userRegion.includes(searchText)) ||
-                    (searchFilter === 'rating' && row['userrate'] == searchText) || // 평점은 정확한 값으로 비교
-                    (searchFilter === 'review' && review.includes(searchText))) { // 리뷰내용 추가
-                    searchResults.push(row);
+                            gridItem.innerHTML = `
+                        <div class="grid-item-content">
+                            <img src="${review.userimg}" alt="리뷰 이미지">
+                            <div>
+                                <p><strong>아이디:</strong> ${review.userid}</p>
+                                <p><strong>숙소명:</strong> ${review.userhotelname}</p>
+                                <p><strong>지역:</strong> ${review.userRigion}</p>
+                                <p><strong>평점:</strong> ${review.userrate} ${generateStars(review.userrate)}</p>
+                                <p><strong>리뷰내용:</strong> ${review.userreview}</p>
+                                <button class="btn btn-outline-primary editBtn">수정하기</button>
+                                <button class="btn btn-outline-danger deleteBtn">삭제하기</button>
+                            </div>  
+                        </div>
+                    `;
+                            gridContainer.appendChild(gridItem);
+                        }
+                    });
+                } else {
+                    console.log("데이터가 없습니다.");
                 }
-            });
-
-            // 검색 결과를 출력
-            renderSearchResults(searchResults);
-        });
-
-
-        // 검색 결과를 출력하는 함수
-        function renderSearchResults(results) {
-            // 그리드 컨테이너 초기화
-            $('.grid-container').empty();
-
-            // 검색 결과를 그리드에 추가
-            results.forEach(row => {
-                let image = row['userimg'];
-                let id = row['userid'];
-                let hotel = row['userhotelname'];
-                let userRegion = row['userRigion'];
-                let grade = row['userrate'];
-                let review = row['userreview'];
-
-                let ratingText = `(${grade})`;
-                let temp_html = `
-            <div class="grid-item">
-                <img src="${image}" alt="숙소 이미지">
-                <div class="grid-item-content">
-                    <p><strong>아이디:</strong> ${id}</p>
-                    <p><strong>숙소명:</strong> ${hotel}</p>
-                    <p><strong>지역:</strong> ${userRegion}</p>
-                    <p><strong>평점:</strong>
-                        <span class="rating">
-                            ${"★".repeat(Math.floor(grade))}${"☆".repeat(5 - Math.floor(grade))}
-                            <span class="rating-value">${ratingText}</span>
-                        </span>
-                    </p>
-                    <p><strong>리뷰내용:</strong> ${review}</p>
-                    <button class="modify-button">수정하기</button>
-                    <button class="delete-button">삭제하기</button>
-                </div>
-            </div>`;
-                $('.grid-container').append(temp_html);
+            }).catch((error) => {
+                console.error(error);
             });
         }
 
+        // 별표 생성 함수
+        function generateStars(rate) {
+            const fullStars = Math.floor(rate);
+            const hasHalfStar = rate % 1 !== 0;
 
-        (async () => {
-            let docs = await getDocs(collection(db, "User_review"));
-            docs.forEach((doc) => {
-                let row = doc.data();
-                console.log(row);
+            let starsHTML = '';
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += '<span style="color: yellow;">★</span>';
+            }
+            if (hasHalfStar) {
+                starsHTML += '<span style="color: yellow;">☆</span>';
+            }
+            const emptyStars = 5 - Math.ceil(rate);
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += '<span>☆</span>';
+            }
 
-                let image = row['userimg'];
-                let id = row['userid'];
-                let hotel = row['userhotelname'];
-                let userRegion = row['userRigion'];
-                let grade = row['userrate'];
-                let review = row['userreview'];
-                let ratingText = `(${grade})`;
+            return starsHTML;
+        }
 
-                let temp_html = `
-                <div class="grid-item">
-                    <img src="${image}" alt="숙소 이미지">
-                    <div class="grid-item-content">
-                        <p><strong>아이디:</strong> ${id}</p>
-                        <p><strong>숙소명:</strong> ${hotel}</p>
-                        <p><strong>지역:</strong> ${userRegion}</p>
-                        <p><strong>평점:</strong>
-                            <span class="rating">
-                                ${"★".repeat(Math.floor(grade))}${"☆".repeat(5 - Math.floor(grade))}
-                                <span class="rating-value">${ratingText}</span>
-                            </span>
-                        </p>
-                        <p><strong>리뷰내용:</strong> ${review}</p>
-                        <button class="modify-button">수정하기</button>
-                        <button class="delete-button">삭제하기</button>
-                    </div>
-                </div>`;
-                $('.grid-container').append(temp_html);
-            });
-        })();
+        // 페이지가 로드될 때 및 검색 버튼 클릭 시 데이터 가져오기
+        window.onload = displayUserData;
+
+        // 검색 버튼 클릭 이벤트
+        document.querySelector('.searchBtn').addEventListener('click', () => {
+            displayUserData();
+        });
+
+        // 삭제하기 버튼 클릭 이벤트
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('deleteBtn')) {
+                const gridItem = event.target.closest('.grid-item');
+                const key = gridItem.getAttribute('data-key');
+
+                // Firebase에서 데이터 삭제
+                remove(ref(db, 'user_review/' + key))
+                    .then(() => {
+                        // 삭제 성공 시 알림창 표시
+                        alert("삭제가 완료되었습니다. !!");
+
+                        // 그리드 레이아웃에서 삭제
+                        gridItem.remove();
+                        console.log("Document successfully deleted!");
+                    })
+                    .catch((error) => {
+                        console.error("Error removing document: ", error);
+                    });
+            }
+        });
+
     </script>
-
-
 </head>
 
 <body>
@@ -266,17 +239,16 @@
                 <input class="form-control me-2 search-input" type="search" id="search" placeholder="검색어를 입력해주세요!"
                     aria-label="Search">
                 <button class="btn btn-outline-success searchBtn" type="button" id="search">검색하기</button>
-                <button class="btn btn-outline-success contentBtn" type="button" id="content">리뷰를 추가해주세요.</button>
+                <button class="btn btn-outline-success contentBtn" type="button" id="content">리뷰를 추가해주세요.!!!</button>
             </form>
             <div class="sign">
 
-                <button type="button" id="my-page" class="btn btn-light">마이페이지</button>
-                <button type="button" id="sign-out" class="btn">로그아웃</button>
+                <button type="button" id="sign-in" class="btn btn-light">로그인</button>
+                <button type="button" id="sign-up" class="btn">회원가입</button>
             </div>
         </div>
     </nav>
     <div class="grid-container"></div>
-
 </body>
 
 </html>
