@@ -51,12 +51,21 @@
         .grid-item-content {
             flex-grow: 1;
             /* 내용이 넘치더라도 여백이 없도록 설정 */
+        }
+
+        /* 평점 스타일 */
+        .rating {
+            font-size: 16px;
+            /* 평점 별 크기 조정 */
+            color: #f39c12;
+            /* 별 색상 */
             display: flex;
-            /* 텍스트 박스를 가로 배열로 나타내기 위해 추가 */
-            justify-content: space-between;
-            /* 텍스트 박스를 가로로 고르게 배열하기 위해 추가 */
             align-items: center;
-            /* 수직 가운데 정렬 */
+        }
+
+        .rating-value {
+            margin-left: 5px;
+            /* 숫자와의 간격 조정 */
         }
 
         .search-filter {
@@ -109,11 +118,12 @@
             const searchFilter = document.querySelector('.search-filter');
             const searchText = document.querySelector('.search-input').value.toLowerCase();
 
+            const userKey = sessionStorage.getItem('id');
             // 'user_review' 데이터베이스 참조
-            const reviewRef = ref(db, 'user_review');
+            const userRef = ref(db, 'user_review' + userKey);
 
             // 데이터 가져오기
-            get(reviewRef).then((snapshot) => {
+            get(userRef).then((snapshot) => {
                 if (snapshot.exists()) {
                     gridContainer.innerHTML = ''; // 기존 내용 초기화
                     const reviews = snapshot.val();
@@ -124,33 +134,33 @@
 
                         // 검색 필터에 따른 검색 수행
                         if (
-                            (searchFilter.value === 'id' && review.userid.toLowerCase().includes(searchText)) ||
-                            (searchFilter.value === 'accommodation' && review.userhotelname.toLowerCase().includes(searchText)) ||
-                            (searchFilter.value === 'location' && review.userRigion.toLowerCase().includes(searchText)) ||
-                            (searchFilter.value === 'rating' && review.userrate.toString().includes(searchText)) ||
-                            (searchFilter.value === 'review' && review.userreview.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'id' && review.reviewId.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'accommodation' && review.reviewHotelName.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'location' && review.reviewRegion.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'rating' && review.reviewRate.toString().includes(searchText)) ||
+                            (searchFilter.value === 'review' && review.reviewContent.toLowerCase().includes(searchText)) ||
                             (searchFilter.value === 'all' && (
-                                review.userid.toLowerCase().includes(searchText) ||
-                                review.userhotelname.toLowerCase().includes(searchText) ||
-                                review.userRigion.toLowerCase().includes(searchText) ||
-                                review.userrate.toString().includes(searchText) ||
-                                review.userreview.toLowerCase().includes(searchText)
+                                review.reviewId.toLowerCase().includes(searchText) ||
+                                review.reviewHotelName.toLowerCase().includes(searchText) ||
+                                review.reviewRegion.toLowerCase().includes(searchText) ||
+                                review.reviewRate.toString().includes(searchText) ||
+                                review.reviewContent.toLowerCase().includes(searchText)
                             ))
                         ) {
                             // 그리드에 추가할 요소 생성
                             const gridItem = document.createElement('div');
                             gridItem.classList.add('grid-item');
                             gridItem.setAttribute('data-key', key); // 각 항목의 키 값 설정
-
+                            
                             gridItem.innerHTML = `
+                        <img src="${review.reviewImg}" alt="리뷰 이미지">
                         <div class="grid-item-content">
-                            <img src="${review.userimg}" alt="리뷰 이미지">
                             <div>
-                                <p><strong>아이디:</strong> ${review.userid}</p>
-                                <p><strong>숙소명:</strong> ${review.userhotelname}</p>
-                                <p><strong>지역:</strong> ${review.userRigion}</p>
-                                <p><strong>평점:</strong> ${review.userrate} ${generateStars(review.userrate)}</p>
-                                <p><strong>리뷰내용:</strong> ${review.userreview}</p>
+                                <p><strong>아이디:</strong> ${review.reviewId}</p>
+                                <p><strong>숙소명:</strong> ${review.reviewHotelName}</p>
+                                <p><strong>지역:</strong> ${review.reviewRegion}</p>
+                                <p><strong>평점:</strong> ${review.reviewRate} ${generateStars(review.reviewRate)}</p>
+                                <p><strong>리뷰내용:</strong> ${review.reviewContent}</p>
                                 <button class="btn btn-outline-primary editBtn">수정하기</button>
                                 <button class="btn btn-outline-danger deleteBtn">삭제하기</button>
                             </div>  
@@ -166,6 +176,7 @@
                 console.error(error);
             });
         }
+
         
 
         // 별표 생성 함수
@@ -250,6 +261,7 @@
         </div>
     </nav>
     <div class="grid-container"></div>
+    <!--  -->
 </body>
 
 </html>
