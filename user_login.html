@@ -114,17 +114,17 @@
 
                         // 검색 필터에 따른 검색 수행
                         if (
-                            (searchFilter.value === 'id' && review.userid.toLowerCase().includes(searchText)) ||
-                            (searchFilter.value === 'accommodation' && review.userhotelname.toLowerCase().includes(searchText)) ||
-                            (searchFilter.value === 'location' && review.userRigion.toLowerCase().includes(searchText)) ||
-                            (searchFilter.value === 'rating' && review.userrate.toString().includes(searchText)) ||
-                            (searchFilter.value === 'review' && review.userreview.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'id' && review.reviewId.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'accommodation' && review.reviewHotelName.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'location' && review.reviewRegion.toLowerCase().includes(searchText)) ||
+                            (searchFilter.value === 'rating' && review.reviewRate.toString().includes(searchText)) ||
+                            (searchFilter.value === 'review' && review.reviewContent.toLowerCase().includes(searchText)) ||
                             (searchFilter.value === 'all' && (
-                                review.userid.toLowerCase().includes(searchText) ||
-                                review.userhotelname.toLowerCase().includes(searchText) ||
-                                review.userRigion.toLowerCase().includes(searchText) ||
-                                review.userrate.toString().includes(searchText) ||
-                                review.userreview.toLowerCase().includes(searchText)
+                                review.reviewId.toLowerCase().includes(searchText) ||
+                                review.reviewHotelName.toLowerCase().includes(searchText) ||
+                                review.reviewRegion.toLowerCase().includes(searchText) ||
+                                review.reviewRate.toString().includes(searchText) ||
+                                review.reviewContent.toLowerCase().includes(searchText)
                             ))
                         ) {
                             // 그리드에 추가할 요소 생성
@@ -132,14 +132,14 @@
                             gridItem.classList.add('grid-item');
 
                             gridItem.innerHTML = `
-                        <img src="${review.userimg}" alt="리뷰 이미지">
+                        <img src="${review.reviewImg}" alt="리뷰 이미지">
                         <div class="grid-item-content">
                             <div>
-                                <p><strong>아이디:</strong> ${review.userid}</p>
-                                <p><strong>숙소명:</strong> ${review.userhotelname}</p>
-                                <p><strong>지역:</strong> ${review.userRigion}</p>
-                                <p><strong>평점:</strong> ${review.userrate} ${generateStars(review.userrate)}</p>
-                                <p><strong>리뷰내용:</strong> ${review.userreview}</p>
+                                <p><strong>아이디:</strong> ${review.reviewId}</p>
+                                <p><strong>숙소명:</strong> ${review.reviewHotelName}</p>
+                                <p><strong>지역:</strong> ${review.reviewRegion}</p>
+                                <p><strong>평점:</strong> ${review.reviewRate} ${generateStars(review.reviewRate)}</p>
+                                <p><strong>리뷰내용:</strong> ${review.reviewContent}</p>
                             </div>  
                         </div>
                     `;
@@ -153,7 +153,6 @@
                 console.error(error);
             });
         }
-        // 
 
         // 별표 생성 함수
         function generateStars(rate) {
