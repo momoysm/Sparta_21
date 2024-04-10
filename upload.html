@@ -214,6 +214,8 @@
     const db = getDatabase();
     const storage = getStorage(app);
 
+    console.log(sessionStorage);
+
     function insertReview(
       reviewId,
       reviewImg,
@@ -233,7 +235,7 @@
         "reviewRegion": reviewRegion,
         "reviewRate": reviewRate,
         "reviewContent": reviewContent,
-        "reviewDate": reviewDate,
+        "reviewDate": reviewDate
       })
         .then(() => {
           alert("업로드가 완료되었습니다.");
@@ -266,12 +268,13 @@
             console.log("업로드된 경로", url);
 
             // 아이디는 나중에 로그인 정보에서 가져오는 작업 필요
-            let reviewId = "testId";
+            let reviewId = sessionStorage.getItem('id');
             let reviewHotelName = $("#hotelName").val();
             let reviewRegion = $("#region").val();
             let reviewRate = $("#rate").val();
             let reviewContent = $("#comment").val();
             let reviewDate = new Date();
+            console.log(reviewDate);
 
             insertReview(
               reviewId,

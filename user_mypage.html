@@ -51,12 +51,21 @@
         .grid-item-content {
             flex-grow: 1;
             /* 내용이 넘치더라도 여백이 없도록 설정 */
+        }
+
+        /* 평점 스타일 */
+        .rating {
+            font-size: 16px;
+            /* 평점 별 크기 조정 */
+            color: #f39c12;
+            /* 별 색상 */
             display: flex;
-            /* 텍스트 박스를 가로 배열로 나타내기 위해 추가 */
-            justify-content: space-between;
-            /* 텍스트 박스를 가로로 고르게 배열하기 위해 추가 */
             align-items: center;
-            /* 수직 가운데 정렬 */
+        }
+
+        .rating-value {
+            margin-left: 5px;
+            /* 숫자와의 간격 조정 */
         }
 
         .search-filter {
@@ -109,11 +118,12 @@
             const searchFilter = document.querySelector('.search-filter');
             const searchText = document.querySelector('.search-input').value.toLowerCase();
 
+            const userKey = sessionStorage.getItem('id');
             // 'user_review' 데이터베이스 참조
-            const reviewRef = ref(db, 'user_review');
+            const userRef = ref(db, 'user_review' + userKey);
 
             // 데이터 가져오기
-            get(reviewRef).then((snapshot) => {
+            get(userRef).then((snapshot) => {
                 if (snapshot.exists()) {
                     gridContainer.innerHTML = ''; // 기존 내용 초기화
                     const reviews = snapshot.val();
@@ -140,7 +150,8 @@
                             // 그리드에 추가할 요소 생성
                             const gridItem = document.createElement('div');
                             gridItem.classList.add('grid-item');
-
+                            gridItem.setAttribute('data-key', key); // 각 항목의 키 값 설정
+                            
                             gridItem.innerHTML = `
                         <img src="${review.reviewImg}" alt="리뷰 이미지">
                         <div class="grid-item-content">
