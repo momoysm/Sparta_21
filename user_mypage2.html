@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&display=swap" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
 
@@ -21,7 +21,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             /* 3개의 열로 설정 */
-            gap: 50px;
+            gap: 10px;
             /* 그리드 아이템 간격 설정 */
             justify-content: center;
             /* 수평 가운데 정렬 */
@@ -50,7 +50,7 @@
             height: 80%;
             border-radius: 5px;
             margin-right: 10px;
-            /* 사진과 정보 사이 간격 조정 */
+            /* 사진과 텍스트 사이 간격 조정 */
         }
 
         .grid-item-content {
@@ -64,6 +64,21 @@
             /* 수직 가운데 정렬 */
         }
 
+        /* 평점 스타일 */
+        .rating {
+            font-size: 16px;
+            /* 평점 별 크기 조정 */
+            color: orange;
+            /* 별 색상 */
+            display: flex;
+            align-items: center;
+        }
+
+        .rating-value {
+            margin-left: 5px;
+            /* 숫자와의 간격 조정 */
+        }
+
         .search-filter {
             margin-right: 10px;
             padding: 5px;
@@ -75,10 +90,22 @@
         .contentBtn {
             margin-left: 10px;
         }
+
+        .actionBtn {
+            text-align: center;
+            position: absolute;
+            /* 절대 위치 설정 */
+            bottom: 10px;
+            /* 하단 여백 */
+            left: 50%;
+            /* 가운데 정렬 */
+            transform: translateX(-50%);
+            /* 수평 정렬 */
+        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js";
+        import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -96,20 +123,18 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase();
 
-        // 아이디 확인용
-        console.log(sessionStorage);
-
         // 데이터 불러와서 화면에 표시하는 함수
         function displayUserData() {
             const gridContainer = document.querySelector('.grid-container');
             const searchFilter = document.querySelector('.search-filter');
             const searchText = document.querySelector('.search-input').value.toLowerCase();
 
+            const userKey = sessionStorage.getItem('id');
             // 'user_review' 데이터베이스 참조
-            const reviewRef = ref(db, 'user_review');
+            const userRef = ref(db, 'user_review/');
 
             // 데이터 가져오기
-            get(reviewRef).then((snapshot) => {
+            get(userRef).then((snapshot) => {
                 if (snapshot.exists()) {
                     gridContainer.innerHTML = ''; // 기존 내용 초기화
                     const reviews = snapshot.val();
@@ -118,7 +143,8 @@
                     Object.keys(reviews).forEach((key) => {
                         const review = reviews[key];
 
-                        // 검색 필터에 따른 검색 수행
+                        if(review.reviewId == sessionStorage.getItem("id")){
+                            // 검색 필터에 따른 검색 수행
                         if (
                             (searchFilter.value === 'id' && review.reviewId.toLowerCase().includes(searchText)) ||
                             (searchFilter.value === 'accommodation' && review.reviewHotelName.toLowerCase().includes(searchText)) ||
@@ -137,7 +163,7 @@
                             const gridItem = document.createElement('div');
                             gridItem.classList.add('grid-item');
                             gridItem.setAttribute('data-key', key); // 각 항목의 키 값 설정
-
+                            
                             gridItem.innerHTML = `
                         <img src="${review.reviewImg}" alt="리뷰 이미지">
                         <div class="grid-item-content">
@@ -146,12 +172,16 @@
                                 <p><strong>숙소명:</strong> ${review.reviewHotelName}</p>
                                 <p><strong>지역:</strong> ${review.reviewRegion}</p>
                                 <p><strong>평점:</strong> ${generateStars(review.reviewRate)}</p>
-                                <p><strong>리뷰내용:</strong> ${review.reviewContent}</p>
+                                <p style="height:120px;"><strong>리뷰내용:</strong> ${review.reviewContent}</p>
+                                <button class="btn btn-outline-primary editBtn" style="margin-right:10px;" id="update();">수정하기</button>
+                                <button class="btn btn-outline-danger deleteBtn" id="delete();">삭제하기</button>
                             </div>  
                         </div>
                     `;
                             gridContainer.appendChild(gridItem);
                         }
+                        }
+                        
                     });
                 } else {
                     console.log("데이터가 없습니다.");
@@ -180,7 +210,6 @@
 
             return starsHTML;
         }
-        // 
 
         // 페이지가 로드될 때 및 검색 버튼 클릭 시 데이터 가져오기
         window.onload = displayUserData;
@@ -190,32 +219,27 @@
             displayUserData();
         });
 
-        // 마이페이지 버튼 클릭 이벤트
-            document.querySelector('#my-page').addEventListener('click', () => {
-            window.location.href = 'user_mypage.html';
-        });
-         // 리뷰 추가하기 버튼 클릭 이벤트
-            document.querySelector('#content').addEventListener('click', () => {
-            window.location.href = 'upload.html';
-        });
+        // 삭제하기 버튼 클릭 이벤트
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('deleteBtn')) {
+                const gridItem = event.target.closest('.grid-item');
+                const key = gridItem.getAttribute('data-key');
 
-        // 리뷰 클릭 시 해당 리뷰 조회 페이지로 이동
-        document.addEventListener('click', function(event){
-            const gridItem = event.target.closest('.grid-item');
-            // grid 아이템의 고유 키값 가져오기
-            let key = ""
-            if(gridItem != null){
-                key = gridItem.getAttribute('data-key');
-                location.href = "watchReview.html?review="+ key;
+                // Firebase에서 데이터 삭제
+                remove(ref(db, 'user_review/' + key))
+                    .then(() => {
+                        // 삭제 성공 시 알림창 표시
+                        alert("삭제가 완료되었습니다. !!");
+
+                        // 그리드 레이아웃에서 삭제
+                        gridItem.remove();
+                        console.log("Document successfully deleted!");
+                    })
+                    .catch((error) => {
+                        console.error("Error removing document: ", error);
+                    });
             }
         });
-
-        // 로그아웃 버튼 클릭 이벤트
-        $('#sign-out').click(function() {
-            sessionStorage.clear();
-            location.href = 'nonUser_mainpage.html';
-        });
-
     </script>
 </head>
 
@@ -236,20 +260,20 @@
                     <option value="rating">평점</option>
                     <option value="review">리뷰내용</option>
                 </select>
-                <input class="form-control me-2 search-input" type="search" id="search" placeholder="검색어를 입력해주세요!!"
+                <input class="form-control me-2 search-input" type="search" id="search" placeholder="검색어를 입력해주세요!"
                     aria-label="Search">
                 <button class="btn btn-outline-success searchBtn" type="button" id="search">검색하기</button>
                 <button class="btn btn-outline-success contentBtn" type="button" id="content">리뷰를 추가해주세요.!!!</button>
             </form>
             <div class="sign">
 
-                <button type="button" id="my-page" class="btn btn-light">마이페이지</button>
+                <button type="button" id="my-page" class="btn btn-light">메인페이지</button>
                 <button type="button" id="sign-out" class="btn">로그아웃</button>
             </div>
         </div>
     </nav>
     <div class="grid-container"></div>
-
+    <!--  -->
 </body>
 
 </html>

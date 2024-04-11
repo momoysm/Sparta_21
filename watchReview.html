@@ -17,7 +17,8 @@
       .review-container{
         display: flex;
         flex-direction: row;
-        margin: 50px 50px 20px 50px;
+        margin: 30px auto 30px auto;
+        width: 1700px;
       }
 
       .image{
@@ -56,24 +57,6 @@
         margin-top: 15px;
       }
 
-      #reviewRegion {
-        font-size: 20px;
-      }
-
-      #reviewId {
-        font-size: 18px;
-        float: right;
-      }
-
-      #reviewHotelName {
-        font-size: 25px;
-        font-weight: bold;
-      }
-
-      #reviewRate {
-        font-size: 20px;
-      }
-
       .line4 {
         border: 1px solid lightgray;
         border-radius: 5px;
@@ -81,8 +64,8 @@
         padding: 10px;
       }
 
-      #reviewDate {
-        float: right;
+      td{
+        font-weight: bold;
       }
 
 
@@ -157,10 +140,10 @@
 
             let starsHTML = '';
             for (let i = 0; i < fullStars; i++) {
-                starsHTML += '<span style="color: yellow;">★</span>';
+                starsHTML += '<span style="color: orange;">★</span>';
             }
             if (hasHalfStar) {
-                starsHTML += '<span style="color: yellow;">☆</span>';
+                starsHTML += '<span style="color: orange;">☆</span>';
             }
             const emptyStars = 5 - Math.ceil(rate);
             for (let i = 0; i < emptyStars; i++) {
@@ -215,29 +198,35 @@
           
         </div>
         <div class="content">
-          <div class="line1">
-            <span id="reviewRegion">서울</span>
-            <span id="reviewId">hihi</span>
-          </div>
-          <div class="line2">
-            <p id="reviewHotelName">서울자바호텔</p>
-          </div>
-          <div class="line3">
-            <p id="reviewRate">⭐⭐⭐</p>
-          </div>
-          <div class="line4">
-            <p id="reviewContent">좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다</p>
-          </div>
-          <div class="line5">
-            <p id="reviewDate">2024년 10월 28일</p>
-          </div>
-          
-          
+          <table class="table">
+            <tbody>
+              <tr>
+                <th scope="row" style="width:15%">숙소:</th>
+                <td id="reviewHotelName" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">작성자:</th>
+                <td id="reviewId" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">작성날짜:</th>
+                <td id="reviewDate" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">지역:</th>
+                <td id="reviewRegion" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">평점:</th>
+                <td id="reviewRate" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">내용:</th>
+                <td id="reviewContent" style="width:85%"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 </body>
-<!--  -->
 </html> 
-=======
-</html>
-

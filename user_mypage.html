@@ -120,7 +120,7 @@
 
             const userKey = sessionStorage.getItem('id');
             // 'user_review' 데이터베이스 참조
-            const userRef = ref(db, 'user_review' + userKey);
+            const userRef = ref(db, 'user_review/');
 
             // 데이터 가져오기
             get(userRef).then((snapshot) => {
@@ -233,11 +233,9 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">죠기어때</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span></button>
             <form class="d-flex" role="search">
                 <select class="search-filter">
                     <option value="id">아이디</option>
@@ -259,7 +257,6 @@
         </div>
     </nav>
     <div class="grid-container"></div>
-    <!--  -->
 </body>
 
 </html>
