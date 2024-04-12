@@ -109,9 +109,16 @@
                     <input type="text" class="form-control" id="reviewRegion" />
                 </div>
                 <div class="input-group mb-3">
-                    <label class="input-group-text" for="inputGroupSelect01">평점</label>
-                    <input type="text" class="form-control" id="reviewRate" />
-                </div>
+                    <label class="input-group-text" for="inputGroupSelect01" style="width: 80px;">평점</label>
+                    <select class="form-select" id="rate">
+                      <option selected>평점 선택</option>
+                      <option value="1">⭐</option>
+                      <option value="2">⭐⭐</option>
+                      <option value="3">⭐⭐⭐</option>
+                      <option value="4">⭐⭐⭐⭐</option>
+                      <option value="5">⭐⭐⭐⭐⭐</option>
+                    </select>
+                  </div>
                 <div class="form-floating">
                     <textarea class="form-control" placeholder="Leave a comment here" id="reviewContent"
                         style="height: 300px"></textarea>
@@ -125,7 +132,8 @@
                     </label>
                 </div>
                 <div class="upload">
-                    <button type="button" id="uploadBtn" class="btn" style="background-color: #6a24fe; color: white">수정하기
+                    <button type="button" id="uploadBtn" class="btn"
+                        style="background-color: #6a24fe; color: white">수정하기
                     </button>
                 </div>
             </form>
@@ -140,17 +148,17 @@
     import { getStorage, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
 
-    // Your web app's Firebase configuration
     const firebaseConfig = {
-            apiKey: "AIzaSyCFiFbDDC2WrZdNAIXVVoWCt61jHewNljM",
-            authDomain: "spartaminiproject-c41e6.firebaseapp.com",
-            databaseURL: "https://spartaminiproject-c41e6-default-rtdb.firebaseio.com",
-            projectId: "spartaminiproject-c41e6",
-            storageBucket: "spartaminiproject-c41e6.appspot.com",
-            messagingSenderId: "885051848770",
-            appId: "1:885051848770:web:47a57865fbcfc2353c15db",
-            measurementId: "G-Q2G8924XG6"
-        };
+        apiKey: "AIzaSyApcUVgvBWTEqlKCINOFnRkttZbJ2EjMXY",
+        authDomain: "spartaminiproject.firebaseapp.com",
+        databaseURL: "https://spartaminiproject-default-rtdb.firebaseio.com",
+        projectId: "spartaminiproject",
+        storageBucket: "spartaminiproject.appspot.com",
+        messagingSenderId: "973891752316",
+        appId: "1:973891752316:web:e03f9c7bc4bc11ab9954f9",
+        measurementId: "G-0WF3E033D3"
+    };
+
 
 
     // Initialize Firebase
