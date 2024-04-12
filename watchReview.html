@@ -14,6 +14,19 @@
 
     <link rel="stylesheet" href="header.css">
     <style>
+
+      .search-filter {
+        margin-right: 10px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .contentBtn {
+        margin-left: 10px;
+      }
+
       .review-container{
         display: flex;
         flex-direction: row;
@@ -56,35 +69,9 @@
         margin-top: 15px;
       }
 
-      #reviewRegion {
-        font-size: 20px;
-      }
-
-      #reviewId {
-        font-size: 18px;
-        float: right;
-      }
-
-      #reviewHotelName {
-        font-size: 25px;
+      td{
         font-weight: bold;
       }
-
-      #reviewRate {
-        font-size: 20px;
-      }
-
-      .line4 {
-        border: 1px solid lightgray;
-        border-radius: 5px;
-        height: fit-content;
-        padding: 10px;
-      }
-
-      #reviewDate {
-        float: right;
-      }
-
 
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -109,10 +96,11 @@
             measurementId: "G-0WF3E033D3"
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      
+      // url에서 리뷰 파라미터 가져오기
       const url = document.location.href;
       console.log(url);
       let query = window.location.search;
@@ -121,54 +109,96 @@
       console.log(reviewKey);
       
       const reviewRef = ref(db, 'user_review/' + reviewKey)
-        get(reviewRef).then((snapshot) => {
-            if (snapshot.exists()) {
-              const object = snapshot.val();
-              loadReview(object);
-            } else {
-                alert("No data available");
-            }
-        }).catch((error) => {
-            console.error(error)
-        })
+      get(reviewRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const object = snapshot.val();
+          loadReview(object);
+        } else {
+            alert("No data available");
+        }
+      }).catch((error) => {
+          console.error(error)
+      })
     
-        function loadReview(object){
-          loadFile(object.reviewImg);
-          const viewRegion = object.reviewRegion;
-          const viewId = object.reviewId;
-          const viewHotelName = object.reviewHotelName;
-          const viewRate = generateStars(object.reviewRate);
-          const viewContent = object.reviewContent;
-          const viewDate = object.reviewDate;
-          
-          //console.log(viewId);
-          $('#reviewRegion').text(viewRegion);
-          $('#reviewId').text(viewId);
-          $('#reviewHotelName').text(viewHotelName);
-          $('#reviewRate').html(viewRate);
-          $('#reviewContent').text(viewContent);
-          $('#reviewDate').text(viewDate);
+      function loadReview(object){
+        loadFile(object.reviewImg);
+        const viewRegion = object.reviewRegion;
+        const viewId = object.reviewId;
+        const viewHotelName = object.reviewHotelName;
+        const viewRate = generateStars(object.reviewRate);
+        const viewContent = object.reviewContent;
+        const viewDate = object.reviewDate;
+        
+        //console.log(viewId);
+        $('#reviewRegion').text(viewRegion);
+        $('#reviewId').text(viewId);
+        $('#reviewHotelName').text(viewHotelName);
+        $('#reviewRate').html(viewRate);
+        $('#reviewContent').text(viewContent);
+        $('#reviewDate').text(viewDate);
+      }
+
+      // 별표 생성 함수
+      function generateStars(rate) {
+        const fullStars = Math.floor(rate);
+        const hasHalfStar = rate % 1 !== 0;
+
+        let starsHTML = '';
+        for (let i = 0; i < fullStars; i++) {
+            starsHTML += '<span style="color: orange;">★</span>';
+        }
+        if (hasHalfStar) {
+            starsHTML += '<span style="color: orange;">☆</span>';
+        }
+        const emptyStars = 5 - Math.ceil(rate);
+        for (let i = 0; i < emptyStars; i++) {
+            starsHTML += '<span>☆</span>';
         }
 
-        // 별표 생성 함수
-        function generateStars(rate) {
-            const fullStars = Math.floor(rate);
-            const hasHalfStar = rate % 1 !== 0;
+        return starsHTML;
+      }
 
-            let starsHTML = '';
-            for (let i = 0; i < fullStars; i++) {
-                starsHTML += '<span style="color: yellow;">★</span>';
-            }
-            if (hasHalfStar) {
-                starsHTML += '<span style="color: yellow;">☆</span>';
-            }
-            const emptyStars = 5 - Math.ceil(rate);
-            for (let i = 0; i < emptyStars; i++) {
-                starsHTML += '<span>☆</span>';
-            }
+      // 로고 클릭 이벤트
+      document.querySelector('#homepage').addEventListener('click', () => {
+        if (sessionStorage.getItem('id') === null) {
+          window.location.href = 'nonUser_mainpage.html';
+        } else {
+          window.location.href = 'user_mainpage.html';
+        } 
+      });
 
-            return starsHTML;
-        }
+      // 마이페이지 버튼 클릭 이벤트
+      document.querySelector('#my-page').addEventListener('click', () => {
+        window.location.href = 'user_mypage.html';
+      });
+
+      // 리뷰 추가하기 버튼 클릭 이벤트
+      document.querySelector('#content').addEventListener('click', () => {
+        if (sessionStorage.getItem('id') === null) {
+          alert("로그인이 필요한 서비스입니다!");
+        } else {
+          window.location.href = 'upload.html';
+        } 
+        
+      });
+
+      // 로그아웃 버튼 클릭 이벤트
+      $('#sign-out').click(function() {
+            sessionStorage.clear();
+            location.href = 'nonUser_mainpage.html';
+      });
+
+      // 로그인 클릭 이벤트
+      $('#sign-in').click(function() {
+        location.href = 'login.html';
+      })
+
+      // 회원가입 클릭 이벤트
+      $('#sign-up').click(function() {
+        location.href = 'signUp.html';
+      })
+
+
     </script>
     <script>
       
@@ -189,22 +219,34 @@
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="#">죠기어때</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#" id="homepage">죠기어때</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
-          </button>
-            <form class="d-flex" role="search">
-              <input class="form-control me-2" type="search" id="search" placeholder="숙소명을 입력해주세요!" aria-label="Search">
-              <button class="btn btn-outline-success" id="searchBtn" type="submit">Search</button>
-            </form>
-            <div class="sign">
-                <button type="button" id="sign-in"class="btn btn-light">마이페이지</button>
-                <button type="button" id="sign-up" class="btn">업로드</button>
-            </div>
+        </button>
+        <!-- <form class="d-flex" role="search">
+            <select class="search-filter">
+                <option value="id">아이디</option>
+                <option value="accommodation">숙소명</option>
+                <option value="location">지역</option>
+                <option value="rating">평점</option>
+                <option value="review">리뷰내용</option>
+            </select>
+            <input class="form-control me-2 search-input" type="search" id="search" placeholder="검색어를 입력해주세요!"
+                aria-label="Search">
+            <button class="btn btn-outline-success searchBtn" type="button" id="search">검색하기</button> -->
+            <button class="btn btn-outline-success contentBtn" type="button" id="content">리뷰를 추가해주세요!</button>
+        </form>
+        <div class="sign">
+
+            <button type="button" id="my-page" class="btn btn-light">마이페이지</button>
+            <button type="button" id="sign-out" class="btn">로그아웃</button>
         </div>
-      </nav>
+    </div>
+</nav>
 
       <div class="review-container">
         <div class="image">
@@ -215,29 +257,38 @@
           
         </div>
         <div class="content">
-          <div class="line1">
-            <span id="reviewRegion">서울</span>
-            <span id="reviewId">hihi</span>
-          </div>
-          <div class="line2">
-            <p id="reviewHotelName">서울자바호텔</p>
-          </div>
-          <div class="line3">
-            <p id="reviewRate">⭐⭐⭐</p>
-          </div>
-          <div class="line4">
-            <p id="reviewContent">좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다좋았습니다</p>
-          </div>
-          <div class="line5">
-            <p id="reviewDate">2024년 10월 28일</p>
-          </div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <th scope="row" style="width:15%">숙소:</th>
+                <td id="reviewHotelName" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">작성자:</th>
+                <td id="reviewId" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">작성날짜:</th>
+                <td id="reviewDate" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">지역:</th>
+                <td id="reviewRegion" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">평점:</th>
+                <td id="reviewRate" style="width:85%"></td>
+              </tr>
+              <tr>
+                <th scope="row" style="width:15%">내용:</th>
+                <td id="reviewContent" style="width:85%"></td>
+              </tr>
+            </tbody>
+          </table>
           
           
         </div>
       </div>
 </body>
-<!--  -->
-</html> 
-=======
 </html>
 

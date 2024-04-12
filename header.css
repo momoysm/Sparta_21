@@ -6,7 +6,7 @@
     width: 400px;
 }
 
-.navbar-brand {
+#homepage {
     font-family: "Bagel Fat One", system-ui;
     /* font-weight: 400; */
     font-style: bold;
@@ -14,9 +14,18 @@
     font-size: 40px;
 }
 
-#search, #searchBtn, #sign-in, #content, #contentBtn{
+#homepage:hover {
+    color: #4714b6;
+}
+
+.search-filter, #search, #sign-in, #content, #my-page{
     border-color: #6A24FE;
     color: #6A24FE;
+}
+
+.search-filter:hover, #search:hover, #sign-in:hover, #content:hover, #my-page:hover {
+    box-shadow: 0px 0px 5px 0px gray;
+    background-color: white;
 }
 
 #search::placeholder {
@@ -33,9 +42,8 @@
     color: white;
 }
 
-#my-page {
-    border-color: #6A24FE;
-    color: #6A24FE;
+#sign-up:hover, #sign-out:hover {
+    box-shadow: 0px 0px 5px 0px gray;
 }
 
-/*  */
+

@@ -58,38 +58,43 @@
       #uploadBtn {
         width: 130px;
       }
-
-      .search-filter {
-            margin-right: 10px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .contentBtn {
-            margin-left: 10px;
-        }
     </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
-          <a class="navbar-brand" href="#" id="homepage">죠기어때</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-              data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-              aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
+        <a class="navbar-brand" href="#">죠기어때</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <form class="d-flex" role="search">
+          <input
+            class="form-control me-2"
+            type="search"
+            id="search"
+            placeholder="숙소명을 입력해주세요!"
+            aria-label="Search"
+          />
+          <button class="btn btn-outline-success" id="searchBtn" type="submit">
+            Search
           </button>
-          
-              <button class="btn btn-outline-success contentBtn" type="button" id="content">리뷰를 추가해주세요!</button>
-          </form>
-          <div class="sign">
-              <button type="button" id="my-page" class="btn btn-light">마이페이지</button>
-              <button type="button" id="sign-out" class="btn">로그아웃</button>
-          </div>
+        </form>
+        <div class="sign">
+          <button type="button" id="sign-in" class="btn btn-light">
+            마이페이지
+          </button>
+          <button type="button" id="sign-up" class="btn">업로드</button>
+        </div>
       </div>
-  </nav>
+    </nav>
 
     <div class="review-container">
       <div class="image">
@@ -103,7 +108,7 @@
               type="file"
               id="inputFile"
               accept="image/*"
-              onchange="loadFile(this)"
+              onchange="loadNewFile(this)"
             />
           </form>
           
@@ -162,11 +167,11 @@
           <div class="upload">
             <button
               type="button"
-              id="uploadBtn"
+              id="updateBtn"
               class="btn"
               style="background-color: #6a24fe; color: white"
             >
-              업로드
+              수정
             </button>
           </div>
         </form>
@@ -213,21 +218,58 @@
     const storage = getStorage(app);
 
     console.log(sessionStorage);
-    const reviewId = sessionStorage.getItem('id');
 
-    function insertReview(
-      reviewId,
-      reviewImg,
-      reviewHotelName,
-      reviewRegion,
-      reviewRate,
-      reviewContent,
-      reviewDate
-    ) {
-      const reviewListRef = ref(db, "user_review");
-      // 고유 키 생성
-      const newUserReviewRef = push(reviewListRef); 
-      set(newUserReviewRef, {
+    const url = document.location.href;
+    console.log(url);
+    let query = window.location.search;
+    let param = new URLSearchParams(query);
+    let reviewKey = param.get('review');
+    console.log(reviewKey);
+
+    const reviewListRef = ref(db, "user_review/" + reviewKey);
+    let reviewId = sessionStorage.getItem('id');
+   
+    viewPrev();
+
+    function viewPrev () {
+      get(reviewListRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const object = snapshot.val();
+          loadPrev(object);
+        } else {
+            alert("No data available");
+        }
+      }).catch((error) => {
+          console.error(error)
+      })
+    }
+
+    // 기존 데이터 불러오기
+    function loadPrev(object) {
+        loadPrevFile(object.reviewImg);
+        const viewHotelName = object.reviewHotelName;
+        const viewRegion = object.reviewRegion;
+        const viewRate = object.reviewRate;
+        const viewContent = object.reviewContent;
+        console.log(viewHotelName);
+        $('#hotelName').val(viewHotelName);        
+        $("#region").val(viewRegion).prop("selected", true);
+        $('#rate').val(viewRate).prop("selected", true);
+        $('#comment').text(viewContent);
+    }
+
+    // 업데이트된 리뷰 데이터 DB 값 수정
+    function updateReview(reviewImg) {
+      let date = new Date();
+
+      let reviewHotelName = $("#hotelName").val();
+      let reviewRegion = $("#region").val();
+      let reviewRate = $("#rate").val();
+      let reviewContent = $("#comment").val();
+      let reviewDate = date.getFullYear() + "년 " + date.getMonth() + "월 " + date.getDate() + "일 (수정)";
+      console.log(reviewDate);
+
+      set(reviewListRef, {
         "reviewId": reviewId,
         "reviewImg": reviewImg,
         "reviewHotelName": reviewHotelName,
@@ -237,94 +279,70 @@
         "reviewDate": reviewDate
       })
         .then(() => {
-          alert("업로드가 완료되었습니다.");
-          location.href = "user_mainpage.html";
+          alert("수정이 완료되었습니다.");
+          location.href = "user_mypage.html";
         })
         .catch((error) => {
           console.error("Error writing document: ", error);
         });
     }
 
-    $("#uploadBtn").click(async function () {
+    $("#updateBtn").click(async function () {
       // storage 파일 저장
       let file = document.querySelector("#inputFile").files[0];
-      let random = new Date().getTime();
-      let storageRef = sRef(storage, `reviewImage/${reviewId}/` + random);
-      const uploadTask = uploadBytesResumable(storageRef, file);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          console.log("Upload is");
-        },
-        (error) => {
-          // A full list of error codes is available at
-          // https://firebase.google.com/docs/storage/web/handle-errors
-          console.log("업로드 오류 발생");
-        },
-        () => {
-          // 업로드 성공 시 실행
-          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            console.log("업로드된 경로", url);
-            let date = new Date();
-
-            let reviewHotelName = $("#hotelName").val();
-            let reviewRegion = $("#region").val();
-            let reviewRate = $("#rate").val();
-            let reviewContent = $("#comment").val();
-            let reviewDate = date.getFullYear() + "년 " + date.getMonth() + "월 " + date.getDate() + "일";
-            console.log(reviewDate);
-
-            insertReview(
-              reviewId,
-              url,
-              reviewHotelName,
-              reviewRegion,
-              reviewRate,
-              reviewContent,
-              reviewDate
-            );
-          });
-        }
-      );
-    });
-
-    // 로고 클릭 이벤트
-    document.querySelector('#homepage').addEventListener('click', () => {
-        if (sessionStorage.getItem('id') === null) {
-          window.location.href = 'nonUser_mainpage.html';
-        } else {
-          window.location.href = 'user_mainpage.html';
-        } 
-      });
-
-    
-      // 마이페이지 버튼 클릭 이벤트
-      document.querySelector('#my-page').addEventListener('click', () => {
-        window.location.href = 'user_mypage.html';
-      });
-
-      // 리뷰 추가하기 버튼 클릭 이벤트
-      document.querySelector('#content').addEventListener('click', () => {
-        if (sessionStorage.getItem('id') === null) {
-          alert("로그인이 필요한 서비스입니다!");
-        } else {
-          window.location.href = 'upload.html';
-        } 
+      // 사진 파일이 변경되지 않은 경우 
+      if (file === undefined) {
+        get(reviewListRef).then((snapshot) => {
+          const object = snapshot.val();
+          updateReview(object.reviewImg);
+        }).catch((error) => {
+            console.error(error)
+        })
         
-      });
+      } else {
+        let random = new Date().getTime();
+        let storageRef = sRef(storage, `reviewImage/${reviewId}/` + random);
+        const uploadTask = uploadBytesResumable(storageRef, file);
 
-      // 로그아웃 버튼 클릭 이벤트
-      $('#sign-out').click(function() {
-            sessionStorage.clear();
-            location.href = 'nonUser_mainpage.html';
-      });
-
-
-
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              console.log("Upload is");
+            },
+            (error) => {
+              // A full list of error codes is available at
+              // https://firebase.google.com/docs/storage/web/handle-errors
+              console.log("업로드 오류 발생");
+            },
+            () => {
+              // 업로드 성공 시 실행
+              getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                console.log("업로드된 경로", url);     
+                updateReview(url);
+              });
+            }
+          );
+      }
+      
+    });
   </script>
   <script>
-    function loadFile(input) {
+    function loadPrevFile(url) {
+        let container = document.getElementById('imageSec');
+    
+        let newImage = document.createElement("img"); //새 이미지 태그 생성
+
+        //이미지 source 가져오기
+        newImage.src = url;
+        newImage.style.width = "100%"; 
+        newImage.style.height = "100%";
+        newImage.style.objectFit = "cover"; // div에 넘치지 않고 들어가게
+
+        //이미지를 image-show div에 추가
+        container.appendChild(newImage);
+    }
+    function loadNewFile(input) {
       let container = document.getElementById("imageSec");
 
       // 기존 이미지를 모두 삭제
